@@ -60,54 +60,63 @@
     </div>
     <button onclick="generateEstimate()">Generate Estimate</button>
     <div id="preview"></div>
-    <div class="output" id="output">
-      <!-- Output will be inserted here -->
-    </div>
+    <div class="output" id="output"></div>
   </div>
 
   <script>
+    const backendURL = "https://blue-print-back-end.onrender.com/upload"; // Replace with your real backend URL
+
     function generateEstimate() {
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
       const output = document.getElementById('output');
-      output.innerHTML = `
-        <h3>📐 Room List</h3>
-        <ul>
-          <li>Game-Media Room: 280 sq ft</li>
-          <li>Exercise Room: 182 sq ft</li>
-          <li>Flex Space: 255 sq ft</li>
-          <li>Bedroom: 105 sq ft</li>
-          <li>Bathroom: 60 sq ft</li>
-        </ul>
 
-        <h3>🧾 Material Takeoff</h3>
-        <ul>
-          <li>Drywall Sheets: 78</li>
-          <li>Baseboard: 400 linear ft</li>
-          <li>Doors: 6</li>
-          <li>Carpet: 300 sq ft</li>
-          <li>Vinyl Flooring: 900 sq ft</li>
-        </ul>
+      if (!file) {
+        output.innerHTML = '<p>Please select a file before clicking Generate.</p>';
+        return;
+      }
 
-        <h3>📅 Suggested Schedule</h3>
-        <ul>
-          <li>Week 1: Framing, Electrical Rough-in</li>
-          <li>Week 2: Drywall + Taping</li>
-          <li>Week 3: Trim, Paint, Flooring</li>
-        </ul>
+      const formData = new FormData();
+      formData.append('file', file);
 
-        <h3>✅ Checklist</h3>
-        <ul>
-          <li>☐ Inspect framing layout</li>
-          <li>☐ Confirm insulation and vapor barrier</li>
-          <li>☐ Check drywall installation</li>
-          <li>☐ Final walkthrough with PM</li>
-        </ul>
-      `;
+      output.innerHTML = '<p>Processing... please wait.</p>';
+
+      fetch(backendURL, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        const estimate = data.estimate;
+        output.innerHTML = `
+          <h3>📐 Room List</h3>
+          <ul>${estimate.rooms.map(room => `<li>${room.name}: ${room.sqft} sq ft</li>`).join('')}</ul>
+
+          <h3>🧾 Material Takeoff</h3>
+          <ul>
+            <li>Drywall Sheets: ${estimate.materials.drywall_sheets}</li>
+            <li>Baseboard: ${estimate.materials.baseboard_ft} linear ft</li>
+            <li>Doors: ${estimate.materials.doors}</li>
+            <li>Carpet: ${estimate.materials.carpet_sqft} sq ft</li>
+            <li>Vinyl Flooring: ${estimate.materials.vinyl_sqft} sq ft</li>
+          </ul>
+
+          <h3>📅 Suggested Schedule</h3>
+          <ul>${estimate.schedule.map(week => `<li>Week ${week.week}: ${week.tasks.join(", ")}</li>`).join('')}</ul>
+
+          <h3>✅ Checklist</h3>
+          <ul>${estimate.checklist.map(item => `<li>☐ ${item}</li>`).join('')}</ul>
+        `;
+      })
+      .catch(err => {
+        output.innerHTML = `<p style="color: red;">Error processing estimate: ${err.message}</p>`;
+        console.error(err);
+      });
     }
 
-    const fileInput = document.getElementById('fileInput');
-    fileInput.addEventListener('change', () => {
-      const file = fileInput.files[0];
+    document.getElementById('fileInput').addEventListener('change', function () {
       const preview = document.getElementById('preview');
+      const file = this.files[0];
       if (file && file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = function(e) {
