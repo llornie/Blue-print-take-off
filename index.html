@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blueprint-to-Estimate Uploader</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f8f9fa;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+    }
+    .upload-box {
+      border: 2px dashed #ccc;
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .output {
+      background: #f1f3f5;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    img {
+      max-width: 100%;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Blueprint Uploader</h1>
+    <div class="upload-box">
+      <input type="file" id="fileInput" accept="image/*,application/pdf" />
+      <p>Upload your floor plan image or PDF</p>
+    </div>
+    <button onclick="generateEstimate()">Generate Estimate</button>
+    <div id="preview"></div>
+    <div class="output" id="output">
+      <!-- Output will be inserted here -->
+    </div>
+  </div>
+
+  <script>
+    function generateEstimate() {
+      const output = document.getElementById('output');
+      output.innerHTML = `
+        <h3>📐 Room List</h3>
+        <ul>
+          <li>Game-Media Room: 280 sq ft</li>
+          <li>Exercise Room: 182 sq ft</li>
+          <li>Flex Space: 255 sq ft</li>
+          <li>Bedroom: 105 sq ft</li>
+          <li>Bathroom: 60 sq ft</li>
+        </ul>
+
+        <h3>🧾 Material Takeoff</h3>
+        <ul>
+          <li>Drywall Sheets: 78</li>
+          <li>Baseboard: 400 linear ft</li>
+          <li>Doors: 6</li>
+          <li>Carpet: 300 sq ft</li>
+          <li>Vinyl Flooring: 900 sq ft</li>
+        </ul>
+
+        <h3>📅 Suggested Schedule</h3>
+        <ul>
+          <li>Week 1: Framing, Electrical Rough-in</li>
+          <li>Week 2: Drywall + Taping</li>
+          <li>Week 3: Trim, Paint, Flooring</li>
+        </ul>
+
+        <h3>✅ Checklist</h3>
+        <ul>
+          <li>☐ Inspect framing layout</li>
+          <li>☐ Confirm insulation and vapor barrier</li>
+          <li>☐ Check drywall installation</li>
+          <li>☐ Final walkthrough with PM</li>
+        </ul>
+      `;
+    }
+
+    const fileInput = document.getElementById('fileInput');
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      const preview = document.getElementById('preview');
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          preview.innerHTML = `<img src="${e.target.result}" alt="Blueprint Preview">`;
+        }
+        reader.readAsDataURL(file);
+      } else {
+        preview.innerHTML = `<p>(PDF preview not supported here)</p>`;
+      }
+    });
+  </script>
+</body>
+</html>
